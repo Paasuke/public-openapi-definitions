@@ -13,7 +13,7 @@
     "version" : "0.5.2"
   },
   "servers" : [ {
-    "url" : "https://virtserver.swaggerhub.com/aasaru/x-road-services-provided-by-paasuke/0.5.0",
+    "url" : "https://virtserver.swaggerhub.com/aasaru/x-road-services-provided-by-paasuke/0.5.2",
     "description" : "SwaggerHub API Auto Mocking"
   } ],
   "tags" : [ {
