@@ -1,0 +1,358 @@
+{
+  "openapi" : "3.0.0",
+  "info" : {
+    "title" : "X-road services to query mandates that are stored in Pääsuke (Oraakliliides).",
+    "description" : "Pääsuke public APIs:\n<ul>\n  <li><a href=\"https://app.swaggerhub.com/apis/aasaru/x-road-services-consumed-by-paasuke/\">X-road services consumed by Pääsuke</a></li>\n  <li><a href=\"https://app.swaggerhub.com/apis/aasaru/paasuke-x-road-services-to-query-mandates/\">X-road services to query mandates that are stored in Pääsuke (Oraakliliides)</a></li>\n</ul>\n",
+    "contact" : {
+      "url" : "https://github.com/e-gov/PH/"
+    },
+    "license" : {
+      "name" : "Apache 2.0",
+      "url" : "http://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "version" : "0.5.2"
+  },
+  "servers" : [ {
+    "url" : "https://virtserver.swaggerhub.com/aasaru/x-road-services-provided-by-paasuke/0.5.0",
+    "description" : "SwaggerHub API Auto Mocking"
+  } ],
+  "tags" : [ {
+    "name" : "Query currently valid mandates"
+  } ],
+  "paths" : {
+    "/delegates/{delegate}/representees" : {
+      "get" : {
+        "tags" : [ "Query currently valid mandates" ],
+        "summary" : "List representees that the delegate can represent. Mandates (roles) are not included.",
+        "description" : "At least one of the parameters 'roleStartingWith' and 'roleIn' must be provided. If both are provided then the conditions are joined with OR so only one of these conditions has to match for representee to be returned.\n",
+        "operationId" : "getDelegateRepresentees",
+        "parameters" : [ {
+          "name" : "delegate",
+          "in" : "path",
+          "description" : "Person identifier.",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string",
+            "example" : "EE39303130356"
+          },
+          "example" : "EE38302250123"
+        }, {
+          "name" : "ns",
+          "in" : "query",
+          "description" : "Filter by namespaces (the first part of the role until colon). If only <b>ns</b> parameter is included in the query then the user must have at least one mandate with a role from one of the listed namespaces. Either <b>ns</b> parameter must be specified or <b>role</b>. If both <b>ns</b> and <b>role</b> are specified then all the returned results must match at least with one of the parameters.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "example" : "AGENCY-Q"
+            }
+          },
+          "example" : "AGENCY-Q"
+        }, {
+          "name" : "role",
+          "in" : "query",
+          "description" : "Filter by role codes. If only <b>role</b> parameter is included in the query then the user must have at least one mandate with a role in this list. Either <b>role</b> parameter must be specified or <b>ns</b>. If both <b>ns</b> and <b>role</b> are specified then all the returned results must match at least with one of the parameters.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "example" : "BR_REPRIGHT:SOLEREP"
+            }
+          },
+          "example" : "BR_REPRIGHT:SOLEREP"
+        }, {
+          "name" : "representeeType",
+          "in" : "query",
+          "description" : "Filter by representee type",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "LEGAL_PERSON", "NATURAL_PERSON" ]
+          }
+        }, {
+          "name" : "X-Road-Id",
+          "in" : "header",
+          "description" : "Unique identifier (UUID) for this message.",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "123e4567-e89b-12d3-a456-42661417400"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "List of representees who have given any valid roles to a delegate.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Person"
+                  }
+                },
+                "example" : [ {
+                  "type" : "LEGAL_PERSON",
+                  "legalName" : "Raamatupidajad OÜ",
+                  "identifier" : "EE1234567"
+                }, {
+                  "type" : "NATURAL_PERSON",
+                  "firstName" : "Juri",
+                  "surname" : "Juurikas",
+                  "identifier" : "EE38302250123"
+                } ]
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad input parameter. For example if delegate parameter is not starting with two-letter contry-code."
+          },
+          "403" : {
+            "description" : "Forbidden. Request not authorized."
+          },
+          "422" : {
+            "description" : "Bad input parameter. This is retured if 'ns' and 'role' are both not provided."
+          }
+        }
+      }
+    },
+    "/representees/{representee}/delegates/{delegate}/mandates" : {
+      "get" : {
+        "tags" : [ "Query currently valid mandates" ],
+        "summary" : "List active mandates of the delegate",
+        "description" : "If both parameters are provided then these conditions are joined with OR so the mandate to be returned has to match to one of them. An empty list is returned in case there are no valid mandates matching to the query parameters or if the representee or delegate are unknown.\n",
+        "operationId" : "getRepresenteeDelegateMandates",
+        "parameters" : [ {
+          "name" : "representee",
+          "in" : "path",
+          "description" : "Identifier of the of the representee.",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "EE10391131"
+        }, {
+          "name" : "delegate",
+          "in" : "path",
+          "description" : "Identifier of the delegate who'se mandate is being sub-delegated.",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "EE38302250123"
+        }, {
+          "name" : "ns",
+          "in" : "query",
+          "description" : "Filter by namespaces (the first part of the role until colon). If only <b>ns</b> parameter is included in the query then the user must have at least one mandate with a role from one of the listed namespaces. Either <b>ns</b> parameter must be specified or <b>role</b>. If both <b>ns</b> and <b>role</b> are specified then all the returned results must match at least with one of the parameters.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "example" : "AGENCY-Q"
+            }
+          },
+          "example" : "AGENCY-Q"
+        }, {
+          "name" : "role",
+          "in" : "query",
+          "description" : "Filter by role codes. If only <b>role</b> parameter is included in the query then the user must have at least one mandate with a role in this list. Either <b>role</b> parameter must be specified or <b>ns</b>. If both <b>ns</b> and <b>role</b> are specified then all the returned results must match at least with one of the parameters.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "example" : "BR_REPRIGHT:SOLEREP"
+            }
+          },
+          "example" : "BR_REPRIGHT:SOLEREP"
+        }, {
+          "name" : "X-Road-User-Id",
+          "in" : "header",
+          "description" : "User identifier whose action initiated the request.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "EE39912310123"
+        }, {
+          "name" : "X-Road-Represented-Party",
+          "in" : "header",
+          "description" : "When service client represents third party while issuing a query then it must be filled with identifier of that third party. When service client represents itself then this header is omitted.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "EE10391131"
+        }, {
+          "name" : "X-Road-Id",
+          "in" : "header",
+          "description" : "Unique identifier (UUID) for this message.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "123e4567-e89b-12d3-a456-42661417400"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "MandateTriplets that match query parameters. If there are no mandates to return for this representee or delegate then empty list is returned. MandateTriplet consists of 3 parts&colon;\n<ol>\n  <li>representee (volitaja)</li>\n  <li>delegate (volitatu)</li>\n  <li>list of mandates that are currently valid.</li></ol>\nProperties of a mandate:\n<ul>\n  <li><b>role</b></li>\n</ul>\n",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MandateTripletReadOnly"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad input parameter. For example if representee or delegate parameter is not starting with two-letter contry-code."
+          },
+          "403" : {
+            "description" : "Forbidden. Request not authorized."
+          },
+          "422" : {
+            "description" : "Bad input parameter. This is retured if 'ns' and 'role' are both not provided."
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "Person" : {
+        "required" : [ "identifier", "type" ],
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string",
+            "description" : "Person type",
+            "enum" : [ "NATURAL_PERSON", "LEGAL_PERSON", "UNKNOWN", "OTHER" ]
+          },
+          "firstName" : {
+            "type" : "string",
+            "description" : "Person given name(s)",
+            "format" : "string",
+            "example" : "Jüri"
+          },
+          "surname" : {
+            "type" : "string",
+            "description" : "Person surname",
+            "format" : "string",
+            "example" : "Juurikas"
+          },
+          "legalName" : {
+            "type" : "string",
+            "description" : "Name of legal entity",
+            "format" : "string",
+            "example" : "Juurikas"
+          },
+          "identifier" : {
+            "type" : "string",
+            "description" : "Identity code",
+            "example" : "EE38302250123"
+          }
+        }
+      },
+      "MandateTripletReadOnly" : {
+        "required" : [ "delegate", "mandates", "representee" ],
+        "type" : "object",
+        "properties" : {
+          "representee" : {
+            "$ref" : "#/components/schemas/Person"
+          },
+          "delegate" : {
+            "$ref" : "#/components/schemas/Person"
+          },
+          "mandates" : {
+            "type" : "array",
+            "description" : "Mandates",
+            "items" : {
+              "$ref" : "#/components/schemas/MandateReadOnly"
+            }
+          }
+        }
+      },
+      "MandateReadOnly" : {
+        "required" : [ "role" ],
+        "type" : "object",
+        "properties" : {
+          "role" : {
+            "type" : "string",
+            "description" : "Role",
+            "format" : "string",
+            "example" : "AGENCY-Q:Edit.submit"
+          }
+        }
+      }
+    },
+    "responses" : {
+      "Persons" : {
+        "description" : "List of representees who have given any valid roles to a delegate.",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/components/schemas/Person"
+              }
+            },
+            "example" : [ {
+              "type" : "LEGAL_PERSON",
+              "legalName" : "Raamatupidajad OÜ",
+              "identifier" : "EE1234567"
+            }, {
+              "type" : "NATURAL_PERSON",
+              "firstName" : "Juri",
+              "surname" : "Juurikas",
+              "identifier" : "EE38302250123"
+            } ]
+          }
+        }
+      },
+      "MandateTripletReadOnly" : {
+        "description" : "MandateTriplets that match query parameters. If there are no mandates to return for this representee or delegate then empty list is returned. MandateTriplet consists of 3 parts&colon;\n<ol>\n  <li>representee (volitaja)</li>\n  <li>delegate (volitatu)</li>\n  <li>list of mandates that are currently valid.</li></ol>\nProperties of a mandate:\n<ul>\n  <li><b>role</b></li>\n</ul>\n",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/MandateTripletReadOnly"
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "X-Road-Id" : {
+        "name" : "X-Road-Id",
+        "in" : "header",
+        "description" : "Unique identifier (UUID) for this message.",
+        "schema" : {
+          "type" : "string"
+        },
+        "example" : "123e4567-e89b-12d3-a456-42661417400"
+      }
+    }
+  }
+}
